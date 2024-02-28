@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Map</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<meta http-equiv="content-script-type" content="text/javascript" />
+<meta http-equiv="content-style-type" content="text/css" />
+<meta http-equiv="content-language" content="en" />
+<meta name="generator" content="Easymap" />
+<link rel="stylesheet" type="text/css" href="map.css" />
+
+<script type="text/javascript" src="openlayers/OpenLayers.js"></script>
+<script type="text/javascript" src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
+<script type="text/javascript" src="util.js"></script>
+ 
+<script type="text/javascript">
+//<![CDATA[
+
+var map;
+
+var showPopupOnHover = false;
+text = new Array("Show map information","Hide map information");
+
+function drawmap() {
+    OpenLayers.Lang.setCode('de');
+    
+    map = new OpenLayers.Map('map', {
+        projection: new OpenLayers.Projection("EPSG:900913"),
+        displayProjection: new OpenLayers.Projection("EPSG:4326"),
+        controls: [
+		new OpenLayers.Control.MouseDefaults(),
+		new OpenLayers.Control.Attribution()],
+        maxExtent:
+            new OpenLayers.Bounds(-20037508.34,-20037508.34,
+                                    20037508.34, 20037508.34),
+        numZoomLevels: 18,
+        maxResolution: 156543,
+        units: 'meters'
+    });
+
+
+
+// Add more controls..
+map.addControl(new OpenLayers.Control.LayerSwitcher());
+map.addControl(new OpenLayers.Control.PanZoomBar());
+
+
+
+// Position and zoom of the map
+lon = 77.373281177803;
+lat = 28.629609623549;
+zoom = 17; 
+
+checkForPermalink();
+
+
+
+
+// Add layers
+
+layer_markers = new OpenLayers.Layer.Markers("Marker", { projection: new OpenLayers.Projection("EPSG:4326"),visibility: true, displayInLayerSwitcher: false });
+layer_vectors = new OpenLayers.Layer.Vector("Drawings", { displayInLayerSwitcher: false } );map.addLayer(layer_vectors);map.addLayer(layer_markers)
+layers = new Array();
+layer_layerMapnik = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
+map.addLayer(layer_layerMapnik)
+layers.push(new Array(layer_layerMapnik,'layer_layerMapnik'));
+setLayer(0);
+
+
+// Jump to the right position and zoom..
+jumpTo(lon,lat,zoom);
+
+// Add used maker icons..
+icons = new Array();
+
+
+// Add markers
+
+
+geometries = new Array();
+
+
+// Nochmal was..
+jumpTo(lon, lat, zoom);
+
+checkUtilVersion(4);
+}
+
+//]]>
+    </script>
+    <style>
+        body {
+          margin: 0;
+          font-family: Arial, sans-serif;
+        }
+      
+        .sticky-box {
+          position: fixed;
+          top: 50%;
+          left: 0;
+          transform: translateY(-50%);
+          padding: 20px;
+        }
+      
+        h1 {
+          font-size: 1.5em;
+          margin-bottom: 20px;
+        }
+      
+        form {
+          display: flex;
+          flex-direction: column;
+        }
+      
+        label {
+          margin-bottom: 5px;
+        }
+      
+        input[type="text"], input[type="submit"] {
+          padding: 10px;
+          margin-bottom: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          font-size: 16px;
+        }
+      
+        input[type="submit"] {
+          background-color: #4ca0af;
+          color: white;
+          border: none;
+          cursor: pointer;
+        }
+      
+        input[type="submit"]:hover {
+          background-color: #265a6b;
+        }
+      </style>
+</head>
+<body onload="drawmap();">
+	<div id="descriptionToggle" onclick="toggleInfo()">Show map information</div>
+	<div id="description" class="hide">No map description has been entered</div>
+	<div id="map"></div>
+	<div class="hide"><p>Wenn Sie diesen Text sehen, dann haben Sie die HTML-Datei ohne die zusätzlich benötigten Dateien geöffnet. Wenn Sie versucht haben die Karte herunterzuladen, wurde das Downloadfenster möglicherweise aus irgendeinem Grund nicht geöffnet. Speichern Sie in diesem Fall einfach diese Seite ab.</p><p>If you see this text, you opened the map HTML-File without the necessary files. If you tried to download the map, the download dialog may not have opened for some reason. In this case just save this page.</p></div>
+    <div class="sticky-box">
+        <h1>Search</h1>
+        <form>
+          <label for="buildings">Buildings:</label>
+          <input type="text" id="buildings" name="buildings">
+      
+          <label for="teacher">Teacher:</label>
+          <input type="text" id="teacher" name="teacher">
+      
+          <label for="department">Department:</label>
+          <input type="text" id="department" name="department">
+      
+          <input type="submit" value="Search">
+        </form>
+      </div>
+</body>
+</html>
+
