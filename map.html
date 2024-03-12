@@ -29,6 +29,19 @@
         margin-bottom: 10px;
         padding: 5px;
     }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
 </style>
 </head>
 <body>
@@ -41,9 +54,128 @@
     </div>
     <div id="classroomInfo" style="display: none;">
         <h3>Classroom Information</h3>
-        <p><strong>Building:</strong> <span id="buildingName"></span></p>
-        <p><strong>Floor:</strong> <span id="floor"></span></p>
+        <table>
+            <tr>
+                <th>Building</th>
+                <th>Floor</th>
+                <th>Room Number</th>
+                <th>Capacity</th>
+            </tr>
+            <tr>
+                <td id="buildingName"></td>
+                <td id="floor"></td>
+                <td id="roomNumber"></td>
+                <td id="capacity"></td>
+            </tr>
+        </table>
     </div>
+    <div style="display: none;">
+    <h2>Building, Floor, and Classroom Information</h2>
+    <h3>Buildings</h3>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>ABB1</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>ABB2</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>JBS</td>
+        </tr>
+    </table>
+    <h3>Floors</h3>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Building ID</th>
+            <th>Floor Number</th>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>1</td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>1</td>
+            <td>2</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>2</td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>2</td>
+            <td>2</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>3</td>
+            <td>1</td>
+        </tr>
+    </table>
+    <h3>Classrooms</h3>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Building ID</th>
+            <th>Floor ID</th>
+            <th>Room Number</th>
+            <th>Capacity</th>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>2</td>
+            <td>1</td>
+            <td>FF1</td>
+            <td>30</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>2</td>
+            <td>1</td>
+            <td>FF2</td>
+            <td>25</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>2</td>
+            <td>2</td>
+            <td>TS9</td>
+            <td>35</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>1</td>
+            <td>1</td>
+            <td>Admin Office</td>
+            <td>40</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>1</td>
+            <td>1</td>
+            <td>Registrar</td>
+            <td>35</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>3</td>
+            <td>1</td>
+            <td>TS18</td>
+            <td>50</td>
+        </tr>
+    </table>
+  </div>
     <h2>Search Route</h2>
     <div>
         <label for="startBuilding">Start Building:</label>
@@ -76,29 +208,37 @@
     map.addLayer(routeLayer);
 
     function searchClassroom() {
-    var classroom = document.getElementById('classroomSearch').value;
-
-    // AJAX request to fetch classroom information
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'data.php?classroom=' + classroom, true);
-    xhr.onload = function() {
-        if (xhr.status >= 200 && xhr.status < 400) {
-            var data = JSON.parse(xhr.responseText);
-            if (data && data.building_name && data.floor) {
-                document.getElementById('buildingName').textContent = data.building_name;
-                document.getElementById('floor').textContent = data.floor;
-                document.getElementById('classroomInfo').style.display = 'block';
-            } else {
-                // Handle classroom not found
-                alert('Classroom not found!');
-            }
+        var classroom = document.getElementById('classroomSearch').value;
+        var classroomInfo = getClassroomInfo(classroom);
+        if (classroomInfo) {
+            document.getElementById('buildingName').textContent = classroomInfo.building;
+            document.getElementById('floor').textContent = classroomInfo.floor;
+            document.getElementById('roomNumber').textContent = classroomInfo.room;
+            document.getElementById('capacity').textContent = classroomInfo.capacity;
+            document.getElementById('classroomInfo').style.display = 'block';
         } else {
-            // Handle request error
-            console.error('Request failed!');
+            alert('Classroom not found!');
+            document.getElementById('classroomInfo').style.display = 'none';
         }
-    };
-    xhr.send();
-}
+    }
+
+    function getClassroomInfo(classroom) {
+        var classrooms = [
+            { building: 'Main Building', floor: 'Floor 1', room: 'Admin Office', capacity: 40 },
+            { building: 'Main Building', floor: 'Floor 1', room: 'Registrar', capacity: 35 },
+            { building: 'Main Building', floor: 'Floor 2', room: 'TS9', capacity: 35 },
+            { building: 'Science Building', floor: 'Floor 1', room: 'FF1', capacity: 30 },
+            { building: 'Science Building', floor: 'Floor 1', room: 'FF2', capacity: 25 },
+            { building: 'Arts Building', floor: 'Floor 1', room: 'TS18', capacity: 50 }
+        ];
+
+        for (var i = 0; i < classrooms.length; i++) {
+            if (classrooms[i].room === classroom) {
+                return classrooms[i];
+            }
+        }
+        return null;
+    }
 
     function searchRoute() {
         var startCoords = ol.proj.fromLonLat([77.373281177803, 28.629609623549]); // Coordinates of Building A
