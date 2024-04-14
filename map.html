@@ -363,13 +363,13 @@
          
              // If the searched classroom is TS9, center the map on its location
              if (classroom === 'TS9' || classroom === 'FF1' || classroom === 'TS8' || classroom === 'FF2') {
-             map.setView([28.630566, 77.372154], 17); // Set the map view to TS9's coordinates
+             map.setView([28.630566, 77.372154], 18); // Set the map view to TS9's coordinates
              L.marker([28.630566, 77.372154]).addTo(map); // Add a marker at TS9's location
          } else if (classroom === 'Admin Office' || classroom === 'Registrar') {
-             map.setView([28.630876951846005, 77.37096703901497], 17); // Set the map view to Admin Office or Registrar's coordinates
+             map.setView([28.630876951846005, 77.37096703901497], 18); // Set the map view to Admin Office or Registrar's coordinates
              L.marker([28.630876951846005, 77.37096703901497]).addTo(map); // Add a marker at Admin Office or Registrar's location
          } else {
-             map.setView([28.62933171975423, 77.37149164531024], 17); // Set the map view to default coordinates
+             map.setView([28.62933171975423, 77.37149164531024], 18); // Set the map view to default coordinates
              L.marker([28.62933171975423, 77.37149164531024]).addTo(map); // Add a marker at default location
          removeMarker(); // Remove marker
          }
