@@ -1,21 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Map with Route</title>
-<link rel="stylesheet" href="https://openlayers.org/en/v6.13.0/css/ol.css" type="text/css">
-<script src="https://openlayers.org/en/v6.13.0/build/ol.js"></script>
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: Arial, sans-serif;
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>Building Search</title>
+  <!-- Load Leaflet from CDN -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+  <!-- Load Esri Leaflet from CDN -->
+  <script src="https://unpkg.com/esri-leaflet@3.0.10/dist/esri-leaflet.js"></script>
+  <script src="https://unpkg.com/esri-leaflet-vector@4.2.3/dist/esri-leaflet-vector.js"></script>
+
+  <!-- Load ArcGIS REST JS from CDN -->
+  <script src="https://unpkg.com/@esri/arcgis-rest-request@4.0.0/dist/bundled/request.umd.js"></script>
+  <script src="https://unpkg.com/@esri/arcgis-rest-routing@4.0.0/dist/bundled/routing.umd.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      font-family: "Inter", sans-serif;
     }
+
     #map {
-        width: 100%;
-        height: 100vh;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+      color: #323232;
     }
+
+    #directions {
+      position: absolute;
+      z-index: 1000;
+      width: 30%;
+      max-height: 50%;
+      right: 20px;
+      top: 20px;
+      overflow-y: auto;
+      /* Show a scrollbar if needed */
+      background: white;
+      font-family: Arial, Helvetica, Verdana;
+      line-height: 1.5;
+      font-size: 14px;
+      padding: 10px;
+    }
+
     .search-container {
         position: fixed;
         top: 20px;
@@ -42,11 +79,12 @@
     th {
         background-color: #f2f2f2;
     }
-</style>
+  </style>
 </head>
+
 <body>
-<div id="map"></div>
-<div class="search-container">
+  <div id="map"></div>
+  <div class="search-container">
     <div>
         <label for="classroomSearch">Search Classroom:</label>
         <input type="text" id="classroomSearch" name="classroomSearch">
@@ -176,36 +214,91 @@
         </tr>
     </table>
   </div>
-    <h2>Search Route</h2>
-    <div>
-        <label for="startBuilding">Start Building:</label>
-        <input type="text" id="startBuilding" name="startBuilding" value="Building A">
-    </div>
-    <div>
-        <label for="endBuilding">End Building:</label>
-        <input type="text" id="endBuilding" name="endBuilding" value="Building B">
-    </div>
-    <button onclick="searchRoute()">Search</button>
-</div>
+  <script>
+    const map = L.map("map", {
+      minZoom: 2
+    });
+    map.setView([28.631049, 77.371839], 17); // Toronto
 
-<script>
-    var map = new ol.Map({
-        target: 'map',
-        layers: [
-            new ol.layer.Tile({
-                source: new ol.source.OSM()
-            })
-        ],
-        view: new ol.View({
-            center: ol.proj.fromLonLat([77.373281177803, 28.629609623549]),
-            zoom: 17
+    const apiKey = "AAPKc5296e327f6a44e0b41e6c10d10da373DiX36STTeip9d-XDXSPYEQqhSECRDqsHgV8ZnxhYJH0Pu84RDx5ABwva7GFFbBZj";
+
+    const basemapEnum = "arcgis/navigation";
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    const directions = document.createElement("div");
+    directions.id = "directions";
+    directions.innerHTML = "Click on the map to create a start and end for the route.";
+    document.body.appendChild(directions);
+
+    const startLayerGroup = L.layerGroup().addTo(map);
+    const endLayerGroup = L.layerGroup().addTo(map);
+
+    const routeLines = L.layerGroup().addTo(map);
+    let currentStep = "start";
+    let startCoords, endCoords;
+
+    const buildingDatabase = {
+      "Building A": "This is Building A. It is a modern office building with state-of-the-art facilities.",
+      "Building B": "Building B is a residential complex offering luxurious apartments with panoramic views."
+      // Add more buildings and descriptions as needed
+    };
+
+    function updateRoute() {
+      // Create the arcgis-rest-js authentication object to use later.
+      const authentication = arcgisRest.ApiKeyManager.fromKey(apiKey);
+
+      // make the API request
+      arcgisRest
+        .solveRoute({
+          stops: [startCoords, endCoords],
+          endpoint: "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World/solve",
+          authentication
         })
-    });
+        .then((response) => {
 
-    var routeLayer = new ol.layer.Vector({
-        source: new ol.source.Vector()
+          routeLines.clearLayers();
+          L.geoJSON(response.routes.geoJson).addTo(routeLines);
+          const directionsHTML = response.directions[0].features.map((f) => f.attributes.text).join("<br/>");
+          directions.innerHTML = directionsHTML;
+          startCoords = null;
+          endCoords = null;
+        })
+        .catch((error) => {
+          console.error(error);
+          alert("There was a problem using the route service. See the console for details.");
+        });
+
+    }
+
+    map.on("click", (e) => {
+      const coordinates = [e.latlng.lng, e.latlng.lat];
+
+      if (currentStep === "start") {
+
+        startLayerGroup.clearLayers();
+        endLayerGroup.clearLayers();
+        routeLines.clearLayers();
+
+        L.marker(e.latlng).addTo(startLayerGroup);
+        startCoords = coordinates;
+
+        currentStep = "end";
+      } else {
+
+        L.marker(e.latlng).addTo(endLayerGroup);
+        endCoords = coordinates;
+
+        currentStep = "start";
+      }
+      if (startCoords && endCoords) {
+        updateRoute();
+      }
+
     });
-    map.addLayer(routeLayer);
 
     function searchClassroom() {
         var classroom = document.getElementById('classroomSearch').value;
@@ -239,34 +332,7 @@
         }
         return null;
     }
-
-    function searchRoute() {
-        var startCoords = ol.proj.fromLonLat([77.373281177803, 28.629609623549]); // Coordinates of Building A
-        var endCoords = ol.proj.fromLonLat([77.373281177803, 28.629609623549]); // Coordinates of Building B
-
-        // Clear previous route if exists
-        routeLayer.getSource().clear();
-
-        // Add start and end markers
-        var startMarker = new ol.Feature({
-            geometry: new ol.geom.Point(startCoords)
-        });
-        var endMarker = new ol.Feature({
-            geometry: new ol.geom.Point(endCoords)
-        });
-        var markerSource = new ol.source.Vector();
-        markerSource.addFeature(startMarker);
-        markerSource.addFeature(endMarker);
-        map.addLayer(new ol.layer.Vector({
-            source: markerSource
-        }));
-
-        // Add a straight line between start and end points (for demonstration)
-        var route = new ol.Feature({
-            geometry: new ol.geom.LineString([startCoords, endCoords])
-        });
-        routeLayer.getSource().addFeature(route);
-    }
-</script>
+  </script>
 </body>
+
 </html>
