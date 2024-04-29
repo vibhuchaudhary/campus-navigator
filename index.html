@@ -1,111 +1,158 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-    <title>JIIT Campus Navigation</title>
-    <!-- Load Leaflet from CDN -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-    <!-- Load Esri Leaflet from CDN -->
-    <script src="https://unpkg.com/esri-leaflet@3.0.10/dist/esri-leaflet.js"></script>
-    <script src="https://unpkg.com/esri-leaflet-vector@4.2.3/dist/esri-leaflet-vector.js"></script>
-    <!-- Load ArcGIS REST JS from CDN -->
-    <script src="https://unpkg.com/@esri/arcgis-rest-request@4.0.0/dist/bundled/request.umd.js"></script>
-    <script src="https://unpkg.com/@esri/arcgis-rest-routing@4.0.0/dist/bundled/routing.umd.js"></script>
-    <!-- Load Esri Leaflet Geocoder from CDN -->
-    <script src="https://unpkg.com/esri-leaflet-geocoder@3.1.4/dist/esri-leaflet-geocoder.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
-    <style>
-        * {
-         margin: 0;
-         padding: 0;
-         font-family: "Inter", sans-serif;
-         }
-         #map {
-         position: absolute;
-         top: 0;
-         bottom: 0;
-         right: 0;
-         left: 0;
-         font-family: Arial, Helvetica, sans-serif;
-         font-size: 14px;
-         color: #323232;
-         }
-         #directions {
-         position: absolute;
-         z-index: 1000;
-         width: 30%;
-         max-height: 50%;
-         right: 20px;
-         top: 20px;
-         overflow-y: auto;
-         /* Show a scrollbar if needed */
-         background: white;
-         font-family: Arial, Helvetica, Verdana;
-         line-height: 1.5;
-         font-size: 14px;
-         padding: 10px;
-         }
-         .search-container {
-         position: fixed;
-         top: 20px;
-         left: 20px;
-         background: rgba(255, 255, 255, 0.8);
-         padding: 10px;
-         border-radius: 5px;
-         z-index: 1000;
-         }
-         .search-container input {
-         margin-bottom: 10px;
-         padding: 5px;
-         }
-         table {
-         width: 100%;
-         border-collapse: collapse;
-         margin-top: 20px;
-         }
-         th, td {
-         border: 1px solid #ddd;
-         padding: 8px;
-         text-align: left;
-         }
-         th {
-         background-color: #f2f2f2;
-         }
-    </style>
-</head>
-<body>
-    <div id="map"></div>
-    <div class="search-container">
-        <div>
-            <label for="classroomSearch">Search Classroom:</label>
-            <input type="text" id="classroomSearch" name="classroomSearch">
-            <button onclick="searchClassroom()">Search</button>
-        </div>
-        <div id="classroomInfo" style="display: none;">
-            <h3>Classroom Information</h3>
-            <table>
-                <tr>
-                    <th>Building</th>
-                    <th>Floor</th>
-                    <th>Room Number</th>
-                    <th>Capacity</th>
-                </tr>
-                <tr>
-                    <td id="buildingName"></td>
-                    <td id="floor"></td>
-                    <td id="roomNumber"></td>
-                    <td id="capacity"></td>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-    <!-- JavaScript file -->
-    <script src="app.js"></script>
-    <script src="script.js"></script>
-</body>
+   <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+      <title>JIIT Campus Navigation</title>
+      <!-- Load Leaflet from CDN -->
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+      <!-- Load Esri Leaflet from CDN -->
+      <script src="https://unpkg.com/esri-leaflet@3.0.10/dist/esri-leaflet.js"></script>
+      <script src="https://unpkg.com/esri-leaflet-vector@4.2.3/dist/esri-leaflet-vector.js"></script>
+      <!-- Load ArcGIS REST JS from CDN -->
+      <script src="https://unpkg.com/@esri/arcgis-rest-request@4.0.0/dist/bundled/request.umd.js"></script>
+      <script src="https://unpkg.com/@esri/arcgis-rest-routing@4.0.0/dist/bundled/routing.umd.js"></script>
+      <!-- Load Esri Leaflet Geocoder from CDN -->
+      <script src="https://unpkg.com/esri-leaflet-geocoder@3.1.4/dist/esri-leaflet-geocoder.js"></script>
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+      <link rel="stylesheet" href="styles.css">
+   </head>
+   <body>
+      <div id="map"></div>
+      <div class="search-container">
+      <div>
+         <label for="classroomSearch">Search Classroom:</label>
+         <input type="text" id="classroomSearch" name="classroomSearch">
+         <button onclick="searchClassroom()">Search</button>
+      </div>
+      <div id="classroomInfo" style="display: none;">
+         <h3>Classroom Information</h3>
+         <table>
+            <tr>
+               <th>Building</th>
+               <th>Floor</th>
+               <th>Room Number</th>
+               <th>Capacity</th>
+            </tr>
+            <tr>
+               <td id="buildingName"></td>
+               <td id="floor"></td>
+               <td id="roomNumber"></td>
+               <td id="capacity"></td>
+            </tr>
+         </table>
+      </div>
+      <button onclick="clearPaths()">Clear Paths</button> <!-- Added clear path button -->
+      <div style="display: none;">
+         <h2>Building, Floor, and Classroom Information</h2>
+         <h3>Buildings</h3>
+         <table>
+            <tr>
+               <th>ID</th>
+               <th>Name</th>
+            </tr>
+            <tr>
+               <td>1</td>
+               <td>ABB1</td>
+            </tr>
+            <tr>
+               <td>2</td>
+               <td>ABB2</td>
+            </tr>
+            <tr>
+               <td>3</td>
+               <td>JBS</td>
+            </tr>
+         </table>
+         <h3>Floors</h3>
+         <table>
+            <tr>
+               <th>ID</th>
+               <th>Building ID</th>
+               <th>Floor Number</th>
+            </tr>
+            <tr>
+               <td>1</td>
+               <td>1</td>
+               <td>1</td>
+            </tr>
+            <tr>
+               <td>2</td>
+               <td>1</td>
+               <td>2</td>
+            </tr>
+            <tr>
+               <td>3</td>
+               <td>2</td>
+               <td>1</td>
+            </tr>
+            <tr>
+               <td>4</td>
+               <td>2</td>
+               <td>2</td>
+            </tr>
+            <tr>
+               <td>5</td>
+               <td>3</td>
+               <td>1</td>
+            </tr>
+         </table>
+         <h3>Classrooms</h3>
+         <table>
+            <tr>
+               <th>ID</th>
+               <th>Building ID</th>
+               <th>Floor ID</th>
+               <th>Room Number</th>
+               <th>Capacity</th>
+            </tr>
+            <tr>
+               <td>1</td>
+               <td>2</td>
+               <td>1</td>
+               <td>FF1</td>
+               <td>30</td>
+            </tr>
+            <tr>
+               <td>2</td>
+               <td>2</td>
+               <td>1</td>
+               <td>FF2</td>
+               <td>25</td>
+            </tr>
+            <tr>
+               <td>3</td>
+               <td>2</td>
+               <td>2</td>
+               <td>TS9</td>
+               <td>35</td>
+            </tr>
+            <tr>
+               <td>4</td>
+               <td>1</td>
+               <td>1</td>
+               <td>Admin Office</td>
+               <td>40</td>
+            </tr>
+            <tr>
+               <td>5</td>
+               <td>1</td>
+               <td>1</td>
+               <td>Registrar</td>
+               <td>35</td>
+            </tr>
+            <tr>
+               <td>6</td>
+               <td>3</td>
+               <td>1</td>
+               <td>TS18</td>
+               <td>50</td>
+            </tr>
+         </table>
+      </div>
+      <script src="script.js"></script>
+   </body>
 </html>
