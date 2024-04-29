@@ -19,140 +19,142 @@
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
       <link rel="stylesheet" href="styles.css">
-   </head>
-   <body>
-      <div id="map"></div>
-      <div class="search-container">
-      <div>
-         <label for="classroomSearch">Search Classroom:</label>
-         <input type="text" id="classroomSearch" name="classroomSearch">
-         <button onclick="searchClassroom()">Search</button>
-      </div>
-      <div id="classroomInfo" style="display: none;">
-         <h3>Classroom Information</h3>
-         <table>
-            <tr>
-               <th>Building</th>
-               <th>Floor</th>
-               <th>Room Number</th>
-               <th>Capacity</th>
-            </tr>
-            <tr>
-               <td id="buildingName"></td>
-               <td id="floor"></td>
-               <td id="roomNumber"></td>
-               <td id="capacity"></td>
-            </tr>
-         </table>
-      </div>
-      <button onclick="clearPaths()">Clear Paths</button> <!-- Added clear path button -->
-      <div style="display: none;">
-         <h2>Building, Floor, and Classroom Information</h2>
-         <h3>Buildings</h3>
-         <table>
-            <tr>
-               <th>ID</th>
-               <th>Name</th>
-            </tr>
-            <tr>
-               <td>1</td>
-               <td>ABB1</td>
-            </tr>
-            <tr>
-               <td>2</td>
-               <td>ABB2</td>
-            </tr>
-            <tr>
-               <td>3</td>
-               <td>JBS</td>
-            </tr>
-         </table>
-         <h3>Floors</h3>
-         <table>
-            <tr>
-               <th>ID</th>
-               <th>Building ID</th>
-               <th>Floor Number</th>
-            </tr>
-            <tr>
-               <td>1</td>
-               <td>1</td>
-               <td>1</td>
-            </tr>
-            <tr>
-               <td>2</td>
-               <td>1</td>
-               <td>2</td>
-            </tr>
-            <tr>
-               <td>3</td>
-               <td>2</td>
-               <td>1</td>
-            </tr>
-            <tr>
-               <td>4</td>
-               <td>2</td>
-               <td>2</td>
-            </tr>
-            <tr>
-               <td>5</td>
-               <td>3</td>
-               <td>1</td>
-            </tr>
-         </table>
-         <h3>Classrooms</h3>
-         <table>
-            <tr>
-               <th>ID</th>
-               <th>Building ID</th>
-               <th>Floor ID</th>
-               <th>Room Number</th>
-               <th>Capacity</th>
-            </tr>
-            <tr>
-               <td>1</td>
-               <td>2</td>
-               <td>1</td>
-               <td>FF1</td>
-               <td>30</td>
-            </tr>
-            <tr>
-               <td>2</td>
-               <td>2</td>
-               <td>1</td>
-               <td>FF2</td>
-               <td>25</td>
-            </tr>
-            <tr>
-               <td>3</td>
-               <td>2</td>
-               <td>2</td>
-               <td>TS9</td>
-               <td>35</td>
-            </tr>
-            <tr>
-               <td>4</td>
-               <td>1</td>
-               <td>1</td>
-               <td>Admin Office</td>
-               <td>40</td>
-            </tr>
-            <tr>
-               <td>5</td>
-               <td>1</td>
-               <td>1</td>
-               <td>Registrar</td>
-               <td>35</td>
-            </tr>
-            <tr>
-               <td>6</td>
-               <td>3</td>
-               <td>1</td>
-               <td>TS18</td>
-               <td>50</td>
-            </tr>
-         </table>
-      </div>
-      <script src="script.js"></script>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css" />
+</head>
+<body>
+  <div id="map"></div>
+  <div class="search-container">
+    <div>
+      <label for="classroomSearch">Search Classroom:</label>
+      <input type="text" id="classroomSearch" name="classroomSearch">
+      <button onclick="searchClassroom()">Search</button>
+    </div>
+    <div id="classroomInfo" style="display: none;">
+      <h3>Classroom Information</h3>
+      <table>
+        <tr>
+          <th>Building</th>
+          <th>Floor</th>
+          <th>Room Number</th>
+          <th>Capacity</th>
+        </tr>
+        <tr>
+          <td id="buildingName"></td>
+          <td id="floor"></td>
+          <td id="roomNumber"></td>
+          <td id="capacity"></td>
+        </tr>
+      </table>
+    </div>
+    <button onclick="clearPaths()">Clear Paths</button> <!-- Added clear path button -->
+    <div style="display: none;">
+      <h2>Building, Floor, and Classroom Information</h2>
+      <h3>Buildings</h3>
+      <table>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>ABB1</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>ABB2</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>JBS</td>
+        </tr>
+      </table>
+      <h3>Floors</h3>
+      <table>
+        <tr>
+          <th>ID</th>
+          <th>Building ID</th>
+          <th>Floor Number</th>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>1</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>1</td>
+          <td>2</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>2</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>2</td>
+          <td>2</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>3</td>
+          <td>1</td>
+        </tr>
+      </table>
+      <h3>Classrooms</h3>
+      <table>
+        <tr>
+          <th>ID</th>
+          <th>Building ID</th>
+          <th>Floor ID</th>
+          <th>Room Number</th>
+          <th>Capacity</th>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>2</td>
+          <td>1</td>
+          <td>FF1</td>
+          <td>30</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>2</td>
+          <td>1</td>
+          <td>FF2</td>
+          <td>25</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>2</td>
+          <td>2</td>
+          <td>TS9</td>
+          <td>35</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>1</td>
+          <td>1</td>
+          <td>Admin Office</td>
+          <td>40</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>1</td>
+          <td>1</td>
+          <td>Registrar</td>
+          <td>35</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>3</td>
+          <td>1</td>
+          <td>TS18</td>
+          <td>50</td>
+        </tr>
+      </table>
+    </div>
+    <script src="script.js"></script>
+  </div>
    </body>
 </html>
