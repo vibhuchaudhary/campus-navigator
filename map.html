@@ -102,6 +102,7 @@
             </tr>
          </table>
       </div>
+      <button onclick="clearPaths()">Clear Paths</button> <!-- Added clear path button -->
       <div style="display: none;">
          <h2>Building, Floor, and Classroom Information</h2>
          <h3>Buildings</h3>
@@ -296,18 +297,48 @@
          
          const routeLines = L.layerGroup().addTo(map);
          let currentStep = "start";
-         let startCoords, endCoords;
+         let stops = [];
+         
+         map.on("click", (e) => {
+           const coordinates = [e.latlng.lng, e.latlng.lat];
+         
+           if (currentStep === "start") {
+             startLayerGroup.clearLayers();
+             routeLines.clearLayers();
+         
+             L.marker(e.latlng).addTo(startLayerGroup);
+             stops.push(coordinates);
+         
+             currentStep = "end";
+           } else {
+             L.marker(e.latlng).addTo(endLayerGroup);
+             stops.push(coordinates);
+         
+             currentStep = "start";
+           }
+           if (stops.length > 1) {
+             updateRoute();
+           }
+         
+         });
          
          function updateRoute() {
            // Create the arcgis-rest-js authentication object to use later.
            const authentication = arcgisRest.ApiKeyManager.fromKey(apiKey);
          
-           // make the API request
+           // make the API request with options for shortest path
            arcgisRest
              .solveRoute({
-               stops: [startCoords, endCoords],
+               stops: stops,
                endpoint: "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World/solve",
-               authentication
+               authentication,
+               outputLines: "esriNAOutputLineTrueShape",
+               returnDirections: true,
+               returnRoutes: true,
+               directionsLengthUnits: "esriNAUnitKilometers",
+               findBestSequence: true,
+               preserveFirstStop: true,
+               preserveLastStop: true
              })
              .then((response) => {
          
@@ -315,8 +346,6 @@
                L.geoJSON(response.routes.geoJson).addTo(routeLines);
                const directionsHTML = response.directions[0].features.map((f) => f.attributes.text).join("<br/>");
                directions.innerHTML = directionsHTML;
-               startCoords = null;
-               endCoords = null;
              })
              .catch((error) => {
                console.error(error);
@@ -324,32 +353,6 @@
              });
          
          }
-         
-         map.on("click", (e) => {
-           const coordinates = [e.latlng.lng, e.latlng.lat];
-         
-           if (currentStep === "start") {
-         
-             startLayerGroup.clearLayers();
-             endLayerGroup.clearLayers();
-             routeLines.clearLayers();
-         
-             L.marker(e.latlng).addTo(startLayerGroup);
-             startCoords = coordinates;
-         
-             currentStep = "end";
-           } else {
-         
-             L.marker(e.latlng).addTo(endLayerGroup);
-             endCoords = coordinates;
-         
-             currentStep = "start";
-           }
-           if (startCoords && endCoords) {
-             updateRoute();
-           }
-         
-         });
          
          function searchClassroom() {
          var classroom = document.getElementById('classroomSearch').value;
@@ -371,55 +374,63 @@
          } else {
              map.setView([28.62933171975423, 77.37149164531024], 18); // Set the map view to default coordinates
              L.marker([28.62933171975423, 77.37149164531024]).addTo(map); // Add a marker at default location
-         removeMarker(); // Remove marker
-         }
+             }
          } else {
              alert('Classroom not found!');
-             document.getElementById('classroomInfo').style.display = 'none';
          }
          }
-         
          
          function getClassroomInfo(classroom) {
-             var classrooms = [
-                 { building: 'ABB 3', floor: 'Floor 1', room: 'Admin Office', capacity: 40 },
-                 { building: 'ABB 3', floor: 'Floor 1', room: 'Registrar', capacity: 35 },
-                 { building: 'ABB 2', floor: 'Floor 2', room: 'TS9', capacity: 35 },
-                 { building: 'ABB 2', floor: 'Floor 2', room: 'TS8', capacity: 35 },
-                 { building: 'ABB 2', floor: 'Floor 2', room: 'TS7', capacity: 35 },
-                 { building: 'ABB 2', floor: 'Floor 2', room: 'TS6', capacity: 35 },
-                 { building: 'ABB 2', floor: 'Floor 2', room: 'TS5', capacity: 35 },
-                 { building: 'ABB 2', floor: 'Floor 2', room: 'TS4', capacity: 35 },
-                 { building: 'ABB 2', floor: 'Floor 2', room: 'TS3', capacity: 35 },
-                 { building: 'ABB 2', floor: 'Floor 2', room: 'TS2', capacity: 35 },
-                 { building: 'ABB 2', floor: 'Floor 2', room: 'TS1', capacity: 35 },
-                 { building: 'ABB 2', floor: 'Floor 1', room: 'FF1', capacity: 30 },
-                 { building: 'ABB 2', floor: 'Floor 1', room: 'FF2', capacity: 25 },
-                 { building: 'ABB 2', floor: 'Floor 1', room: 'FF3', capacity: 25 },
-                 { building: 'ABB 2', floor: 'Floor 1', room: 'FF4', capacity: 25 },
-                 { building: 'ABB 2', floor: 'Floor 1', room: 'FF5', capacity: 25 },
-                 { building: 'ABB 2', floor: 'Floor 1', room: 'FF6', capacity: 25 },
-                 { building: 'ABB 2', floor: 'Floor 1', room: 'FF7', capacity: 25 },
-                 { building: 'ABB 2', floor: 'Floor 1', room: 'FF8', capacity: 25 },
-                 { building: 'ABB 2', floor: 'Floor 1', room: 'FF9', capacity: 25 },
-                 { building: 'JBS', floor: 'Floor 1', room: 'TS18', capacity: 50 },
-                 { building: 'JBS', floor: 'Floor 1', room: 'TS19', capacity: 50 },
-                 { building: 'JBS', floor: 'Floor 1', room: 'TS20', capacity: 50 },
-                 { building: 'JBS', floor: 'Floor 1', room: 'TS17', capacity: 50 },
-                 { building: 'JBS', floor: 'Floor 1', room: 'TS16', capacity: 50 },
-                 { building: 'JBS', floor: 'Floor 1', room: 'TS15', capacity: 50 },
-                 { building: 'JBS', floor: 'Floor 1', room: 'TS14', capacity: 50 },
-                 { building: 'ABB 3', floor: 'Ground', room: 'Cafe', capacity: 40 },
-                 { building: 'AtoZ', floor: 'Ground Floor', room: 'Swimming pool', capacity: 40 },
-                 { building: 'AtoZ', floor: 'Ground Floor', room: 'AtoZ', capacity: 40 }
-         ];
-         
-             for (var i = 0; i < classrooms.length; i++) {
-                 if (classrooms[i].room === classroom) {
-                     return classrooms[i];
-                 }
+         // Sample classroom data (replace this with actual data)
+         const classrooms = {
+             'FF1': {
+             building: 'ABB1',
+             floor: 'First Floor',
+             room: 'FF1',
+             capacity: 30
+             },
+             'FF2': {
+             building: 'ABB1',
+             floor: 'First Floor',
+             room: 'FF2',
+             capacity: 25
+             },
+             'TS9': {
+             building: 'ABB2',
+             floor: 'First Floor',
+             room: 'TS9',
+             capacity: 35
+             },
+             'Admin Office': {
+             building: 'ABB2',
+             floor: 'First Floor',
+             room: 'Admin Office',
+             capacity: 40
+             },
+             'Registrar': {
+             building: 'ABB2',
+             floor: 'First Floor',
+             room: 'Registrar',
+             capacity: 35
+             },
+             'TS18': {
+             building: 'JBS',
+             floor: 'First Floor',
+             room: 'TS18',
+             capacity: 50
              }
-             return null;
+         };
+         
+         return classrooms[classroom];
+         }
+
+         function clearPaths() {
+           startLayerGroup.clearLayers();
+           endLayerGroup.clearLayers();
+           routeLines.clearLayers();
+           directions.innerHTML = "Click on the map to create a start and end for the route.";
+           stops = [];
+           currentStep = "start";
          }
       </script>
    </body>
